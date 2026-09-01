@@ -1,5 +1,6 @@
 package prueba.tecnica.inditex.core.luis.controller.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,5 +23,15 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
+    
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleConstraintViolationException(ConstraintViolationException ex) {
+        Map<String, Object> errorResponse = Map.of(
+                "timestamp", LocalDateTime.now().toString(),
+                "status", HttpStatus.BAD_REQUEST.value(),
+                "error", HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                "message", "Validation failed: " + ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
 }
-

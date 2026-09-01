@@ -38,12 +38,17 @@ class PriceControllerTest {
         when(priceService.getPrice(any(), any(), any())).thenReturn(domainPrice);
         when(priceControllerMapper.toPriceDto(domainPrice)).thenReturn(expectedDto);
 
-        mockMvc.perform(get("/prices")
-                        .param("date", "2020-06-14T10:00:00")
-                        .param("productId", "35455")
-                        .param("brandId", "1"))
+        mockMvc.perform(get("/brands/{brandId}/products/{productId}/prices", 1, 35455)
+                        .param("date", "2020-06-14T10:00:00"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.price").value(35.50))
                 .andExpect(jsonPath("$.currency").value("EUR"));
+    }
+    
+    @Test
+    void getPrices_ShouldReturnBadRequest_WhenParameterIsNegative() throws Exception {
+        mockMvc.perform(get("/brands/{brandId}/products/{productId}/prices", -1, 35455)
+                        .param("date", "2020-06-14T10:00:00"))
+                .andExpect(status().isBadRequest());
     }
 }
