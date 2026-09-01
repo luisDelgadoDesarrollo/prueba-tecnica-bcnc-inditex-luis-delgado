@@ -5,13 +5,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import prueba.tecnica.inditex.core.luis.domain.exception.PriceNotFoundException;
 import prueba.tecnica.inditex.core.luis.domain.model.Price;
 import prueba.tecnica.inditex.core.luis.domain.repository.PriceRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,11 +40,23 @@ class PriceServiceImplTest {
                 .currency("EUR")
                 .build();
 
-        when(priceRepository.getPrice(date, productId, brandId)).thenReturn(expectedPrice);
+        when(priceRepository.getPrice(date, productId, brandId)).thenReturn(Optional.of(expectedPrice));
 
         Price result = priceService.getPrice(date, productId, brandId);
 
         assertEquals(expectedPrice, result);
+        verify(priceRepository).getPrice(date, productId, brandId);
+    }
+    
+    @Test
+    void getPrice_ShouldThrowPriceNotFoundException_WhenRepositoryReturnsEmpty() {
+        LocalDateTime date = LocalDateTime.parse("2020-06-14T10:00:00");
+        Long productId = 35455L;
+        Long brandId = 1L;
+
+        when(priceRepository.getPrice(date, productId, brandId)).thenReturn(Optional.empty());
+
+        assertThrows(PriceNotFoundException.class, () -> priceService.getPrice(date, productId, brandId));
         verify(priceRepository).getPrice(date, productId, brandId);
     }
 }

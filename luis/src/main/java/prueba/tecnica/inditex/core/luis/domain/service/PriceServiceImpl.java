@@ -1,6 +1,7 @@
 package prueba.tecnica.inditex.core.luis.domain.service;
 
 import org.springframework.stereotype.Service;
+import prueba.tecnica.inditex.core.luis.domain.exception.PriceNotFoundException;
 import prueba.tecnica.inditex.core.luis.domain.repository.PriceRepository;
 import prueba.tecnica.inditex.core.luis.domain.model.Price;
 
@@ -17,6 +18,7 @@ public class PriceServiceImpl implements PriceService {
 
     @Override
     public Price getPrice(LocalDateTime date, Long productId, Long brandId) {
-        return priceRepository.getPrice(date, productId, brandId);
+        return priceRepository.getPrice(date, productId, brandId)
+                .orElseThrow(() -> PriceNotFoundException.forProductAndBrand(productId, brandId));
     }
 }

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import prueba.tecnica.inditex.core.luis.domain.exception.PriceNotFoundException;
 import prueba.tecnica.inditex.core.luis.domain.model.Price;
 import prueba.tecnica.inditex.core.luis.infrastructure.entity.PriceEntity;
 import prueba.tecnica.inditex.core.luis.infrastructure.jpa.PriceEntityJpa;
@@ -15,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,24 +42,25 @@ class PriceRepositoryImplTest {
         when(priceEntityJpa.findPrice(date, productId, brandId)).thenReturn(Optional.of(entity));
         when(priceMapper.toPrice(entity)).thenReturn(expectedPrice);
 
-        Price result = priceRepository.getPrice(date, productId, brandId);
+        Optional<Price> result = priceRepository.getPrice(date, productId, brandId);
 
-        assertEquals(expectedPrice, result);
+        assertTrue(result.isPresent());
+        assertEquals(expectedPrice, result.get());
         verify(priceEntityJpa).findPrice(date, productId, brandId);
         verify(priceMapper).toPrice(entity);
     }
 
     @Test
-    void getPrice_ShouldThrowPriceNotFoundException_WhenEntityIsNotFound() {
+    void getPrice_ShouldReturnEmpty_WhenEntityIsNotFound() {
         LocalDateTime date = LocalDateTime.parse("2020-06-14T10:00:00");
         Long productId = 35455L;
         Long brandId = 1L;
 
         when(priceEntityJpa.findPrice(date, productId, brandId)).thenReturn(Optional.empty());
 
-        assertThrows(PriceNotFoundException.class, () -> 
-                priceRepository.getPrice(date, productId, brandId));
-        
+        Optional<Price> result = priceRepository.getPrice(date, productId, brandId);
+
+        assertTrue(result.isEmpty());
         verify(priceEntityJpa).findPrice(date, productId, brandId);
     }
 }
