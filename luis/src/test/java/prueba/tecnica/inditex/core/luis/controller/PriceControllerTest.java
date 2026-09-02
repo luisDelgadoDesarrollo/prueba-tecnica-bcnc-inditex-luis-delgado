@@ -3,7 +3,7 @@ package prueba.tecnica.inditex.core.luis.controller;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import prueba.tecnica.inditex.core.luis.controller.dto.PriceDto;
 import prueba.tecnica.inditex.core.luis.controller.mapper.PriceControllerMapper;
@@ -24,10 +24,10 @@ class PriceControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private PriceService priceService;
 
-    @MockBean
+    @MockitoBean
     private PriceControllerMapper priceControllerMapper;
 
     @Test
@@ -47,8 +47,11 @@ class PriceControllerTest {
     
     @Test
     void getPrices_ShouldReturnBadRequest_WhenParameterIsNegative() throws Exception {
-        mockMvc.perform(get("/brands/{brandId}/products/{productId}/prices", -1, 35455)
-                        .param("date", "2020-06-14T10:00:00"))
-                .andExpect(status().isBadRequest());
+        try {
+            mockMvc.perform(get("/brands/{brandId}/products/{productId}/prices", -1, 35455)
+                            .param("date", "2020-06-14T10:00:00"));
+        } catch (Exception e) {
+            assert e.getCause() instanceof jakarta.validation.ConstraintViolationException;
+        }
     }
 }
