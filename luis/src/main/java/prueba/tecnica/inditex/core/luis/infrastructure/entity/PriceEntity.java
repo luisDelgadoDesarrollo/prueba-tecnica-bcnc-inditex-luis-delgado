@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +16,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "PRICES")
+@Table(name = "PRICES", indexes = {
+        @Index(name = "idx_prices_lookup", columnList = "PRODUCT_ID, BRAND_ID, START_DATE, END_DATE")
+})
 @Data
 @Builder
 @NoArgsConstructor
